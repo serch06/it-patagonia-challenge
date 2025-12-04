@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { CompanyRepository, CompanyWithTransfers } from '../../../domain/repositories/company.repository.interface';
@@ -16,7 +16,11 @@ export class TypeOrmCompanyRepository implements CompanyRepository {
 
     async save(company: Company): Promise<void> {
         const ormEntity = CompanyMapper.toOrm(company);
-        await this.repository.save(ormEntity);
+        try {
+            await this.repository.save(ormEntity);
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to save company', { cause: error as Error });
+        }
     }
 
     async findById(id: string): Promise<Company | null> {
