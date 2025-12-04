@@ -91,9 +91,40 @@ El proyecto sigue los principios de Clean Architecture / Hexagonal:
 Utiliza SQLite (`database.sqlite`). El archivo se crea automáticamente en la raíz del proyecto.
 TypeORM está configurado con `synchronize: true` para desarrollo local.
 
+## Decisiones rápidas
+- TypeORM: nos da mapeo ORM, migración sencilla y reutilizamos decoradores/validaciones de Nest sin escribir SQL manual.
+- SQLite (`database.sqlite`): liviana y embebida para desarrollo/local; evita depender de un motor externo y reduce fricción en demos.
+
 ## Pruebas
 Ejecutar el suite de pruebas unitarias:
 ```bash
 npm test
 ```
 Se incluyen pruebas para los casos de uso (registro de empresas y transferencias) que validan flujos exitosos, conflictos y manejo de errores.
+
+## Lambda para adhesión de empresas (diseño)
+- **Objetivo**: Lambda (Node.js 18) que valida y registra la adhesión de una empresa (`Pyme` o `Corporativa`) y devuelve el alta con un UUID.
+- **Código** (en `aws-lambda/register-company-lambda.ts`):
+
+- **Input esperado (JSON)**:
+```json
+{
+  "name": "Mi Empresa S.A.",
+  "type": "Pyme",
+  "joinedAt": "2025-11-15T10:00:00Z"
+}
+```
+- **Output esperado (JSON)**:
+```json
+{
+  "id": "4c8a5c2b-9b0c-4c93-8b93-6a0c1d2f1e9f",
+  "name": "Mi Empresa S.A.",
+  "type": "Pyme",
+  "joinedAt": "2025-11-15T10:00:00Z",
+  "message": "Empresa registrada (pendiente de persistencia real)"
+}
+```
+- **Integración con el sistema**:
+  - Opción 1 (recomendada): Exponer la Lambda por API Gateway y llamar al `POST /companies` existente para reutilizar validaciones y evitar duplicados.
+  - Opción 2: Publicar el payload en SQS; un consumidor en Nest lee la cola y ejecuta `RegisterCompanyUseCase`.
+  - Opción 3: Guardar directo en DynamoDB y emitir evento SNS para que el servicio Nest sincronice el alta.
