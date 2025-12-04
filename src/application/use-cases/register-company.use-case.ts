@@ -14,7 +14,10 @@ export class RegisterCompanyDto {
     @IsEnum(CompanyType)
     type: CompanyType;
 
-    @ApiPropertyOptional({ description: 'Fecha de adhesión (ISO 8601)', example: '2025-11-15T10:00:00Z' })
+    @ApiPropertyOptional({
+        description: 'Fecha de adhesión (ISO 8601). Si no se envía, se usará la fecha/hora actual',
+        example: '2025-11-15T10:00:00Z',
+    })
     @IsOptional()
     @IsDateString()
     joinedAt?: Date;
