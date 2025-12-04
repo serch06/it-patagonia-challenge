@@ -9,6 +9,7 @@ export interface CompanyWithTransfers {
 export interface CompanyRepository {
     save(company: Company): Promise<void>;
     findById(id: string): Promise<Company | null>;
+    findByName(name: string): Promise<Company | null>;
     findJoinedInDateRange(start: Date, end: Date): Promise<Company[]>;
     findWithTransfersInDateRange(start: Date, end: Date): Promise<CompanyWithTransfers[]>;
 }

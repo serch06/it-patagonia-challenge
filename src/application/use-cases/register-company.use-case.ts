@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, ConflictException } from '@nestjs/common';
 import { Company, CompanyType } from '../../domain/entities/company.entity';
 import { CompanyRepository } from '../../domain/repositories/company.repository.interface';
 import { randomUUID } from 'crypto';
@@ -38,9 +38,17 @@ export class RegisterCompanyUseCase {
             dto.joinedAt ? new Date(dto.joinedAt) : new Date(),
         );
         try {
+            const existing = await this.companyRepository.findByName(dto.name);
+            if (existing) {
+                throw new ConflictException(`La empresa "${dto.name}" ya existe`);
+            }
+
             await this.companyRepository.save(company);
             return company;
         } catch (error) {
+            if (error instanceof ConflictException) {
+                throw error;
+            }
             throw new InternalServerErrorException('Failed to register company', { cause: error as Error });
         }
     }

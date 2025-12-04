@@ -24,11 +24,27 @@ export class TypeOrmCompanyRepository implements CompanyRepository {
     }
 
     async findById(id: string): Promise<Company | null> {
-        const ormEntity = await this.repository
-            .createQueryBuilder('company')
-            .where('company.id = :id', { id })
-            .getOne();
-        return ormEntity ? CompanyMapper.toDomain(ormEntity) : null;
+        try {
+            const ormEntity = await this.repository
+                .createQueryBuilder('company')
+                .where('company.id = :id', { id })
+                .getOne();
+            return ormEntity ? CompanyMapper.toDomain(ormEntity) : null;
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to fetch company by id', { cause: error as Error });
+        }
+    }
+
+    async findByName(name: string): Promise<Company | null> {
+        try {
+            const ormEntity = await this.repository
+                .createQueryBuilder('company')
+                .where('LOWER(company.name) = LOWER(:name)', { name })
+                .getOne();
+            return ormEntity ? CompanyMapper.toDomain(ormEntity) : null;
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to fetch company by name', { cause: error as Error });
+        }
     }
 
     async findJoinedInDateRange(start: Date, end: Date): Promise<Company[]> {
