@@ -33,7 +33,7 @@ export class RegisterCompanyDto {
   })
   @IsOptional()
   @IsDateString()
-  joinedAt?: Date;
+  joinedAt?: string;
 }
 
 @Injectable()

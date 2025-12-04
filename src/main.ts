@@ -6,7 +6,13 @@ import { LoggingInterceptor } from './infrastructure/interceptors/logging.interc
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
   app.useGlobalInterceptors(new LoggingInterceptor());
 
   const config = new DocumentBuilder()

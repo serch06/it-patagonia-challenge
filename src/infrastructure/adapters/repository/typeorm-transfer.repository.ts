@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TransferRepository } from '../../../domain/repositories/transfer.repository.interface';
@@ -18,6 +18,10 @@ export class TypeOrmTransferRepository implements TransferRepository {
         ormEntity.companyId = transfer.companyId;
         ormEntity.amount = transfer.amount;
         ormEntity.date = transfer.date;
-        await this.repository.save(ormEntity);
+        try {
+            await this.repository.save(ormEntity);
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to save transfer', { cause: error as Error });
+        }
     }
 }

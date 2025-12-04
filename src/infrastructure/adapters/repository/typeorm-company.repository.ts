@@ -58,29 +58,43 @@ export class TypeOrmCompanyRepository implements CompanyRepository {
   }
 
   async findJoinedInDateRange(start: Date, end: Date): Promise<Company[]> {
-    const ormEntities = await this.repository.find({
-      where: {
-        joinedAt: Between(start, end),
-      },
-    });
-    return ormEntities.map(CompanyMapper.toDomain);
+    try {
+      const ormEntities = await this.repository.find({
+        where: {
+          joinedAt: Between(start, end),
+        },
+      });
+      return ormEntities.map(CompanyMapper.toDomain);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to fetch companies in date range',
+        { cause: error as Error },
+      );
+    }
   }
 
   async findWithTransfersInDateRange(
     start: Date,
     end: Date,
   ): Promise<CompanyWithTransfers[]> {
-    const ormEntities = await this.repository
-      .createQueryBuilder('company')
-      .innerJoinAndSelect('company.transfers', 'transfer')
-      .where('transfer.date BETWEEN :start AND :end', { start, end })
-      .getMany();
+    try {
+      const ormEntities = await this.repository
+        .createQueryBuilder('company')
+        .innerJoinAndSelect('company.transfers', 'transfer')
+        .where('transfer.date BETWEEN :start AND :end', { start, end })
+        .getMany();
 
-    return ormEntities.map((entity) => ({
-      company: CompanyMapper.toDomain(entity),
-      transfers: entity.transfers.map(
-        (t) => new Transfer(t.id, t.companyId, Number(t.amount), t.date),
-      ),
-    }));
+      return ormEntities.map((entity) => ({
+        company: CompanyMapper.toDomain(entity),
+        transfers: entity.transfers.map(
+          (t) => new Transfer(t.id, t.companyId, Number(t.amount), t.date),
+        ),
+      }));
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to fetch companies with transfers in date range',
+        { cause: error as Error },
+      );
+    }
   }
 }
