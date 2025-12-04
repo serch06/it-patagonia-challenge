@@ -90,3 +90,10 @@ El proyecto sigue los principios de Clean Architecture / Hexagonal:
 ## Base de Datos
 Utiliza SQLite (`database.sqlite`). El archivo se crea automáticamente en la raíz del proyecto.
 TypeORM está configurado con `synchronize: true` para desarrollo local.
+
+## Pruebas
+Ejecutar el suite de pruebas unitarias:
+```bash
+npm test
+```
+Se incluyen pruebas para los casos de uso (registro de empresas y transferencias) que validan flujos exitosos, conflictos y manejo de errores.
