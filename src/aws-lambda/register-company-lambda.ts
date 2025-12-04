@@ -46,7 +46,7 @@ export const handler = async (
     createdAt: new Date().toISOString(),
   };
 
-  // TODO persistir (API Nest | publicar en SQS/SNS o escribir en DynamoDB)
+  // No se implementa persitencia (optiones API Nest | publicar en SQS/SNS o escribir en DynamoDB)
 
   return {
     id: company.id,
