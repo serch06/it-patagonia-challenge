@@ -39,7 +39,8 @@ export class TypeOrmCompanyRepository implements CompanyRepository {
     async findWithTransfersInDateRange(start: Date, end: Date): Promise<CompanyWithTransfers[]> {
         const ormEntities = await this.repository
             .createQueryBuilder('company')
-            .innerJoinAndSelect('company.transfers', 'transfer', 'transfer.date BETWEEN :start AND :end', { start, end })
+            .innerJoinAndSelect('company.transfers', 'transfer')
+            .where('transfer.date BETWEEN :start AND :end', { start, end })
             .getMany();
 
         return ormEntities.map((entity) => ({
