@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Company, CompanyType } from '../../domain/entities/company.entity';
 import { CompanyRepository } from '../../domain/repositories/company.repository.interface';
 import { randomUUID } from 'crypto';
@@ -34,7 +34,11 @@ export class RegisterCompanyUseCase {
             dto.type,
             dto.joinedAt ? new Date(dto.joinedAt) : new Date(),
         );
-        await this.companyRepository.save(company);
-        return company;
+        try {
+            await this.companyRepository.save(company);
+            return company;
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to register company', { cause: error as Error });
+        }
     }
 }

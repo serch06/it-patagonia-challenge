@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { Transfer } from '../../domain/entities/transfer.entity';
 import { TransferRepository } from '../../domain/repositories/transfer.repository.interface';
 import { CompanyRepository } from '../../domain/repositories/company.repository.interface';
@@ -32,18 +32,25 @@ export class RegisterTransferUseCase {
     ) { }
 
     async execute(dto: RegisterTransferDto): Promise<Transfer> {
-        const company = await this.companyRepository.findById(dto.companyId);
-        if (!company) {
-            throw new NotFoundException(`Empresa con ID ${dto.companyId} no encontrada`);
-        }
+        try {
+            const company = await this.companyRepository.findById(dto.companyId);
+            if (!company) {
+                throw new NotFoundException(`Empresa con ID ${dto.companyId} no encontrada`);
+            }
 
-        const transfer = new Transfer(
-            randomUUID(),
-            dto.companyId,
-            dto.amount,
-            dto.date ? new Date(dto.date) : new Date(),
-        );
-        await this.transferRepository.save(transfer);
-        return transfer;
+            const transfer = new Transfer(
+                randomUUID(),
+                dto.companyId,
+                dto.amount,
+                dto.date ? new Date(dto.date) : new Date(),
+            );
+            await this.transferRepository.save(transfer);
+            return transfer;
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Failed to register transfer', { cause: error as Error });
+        }
     }
 }

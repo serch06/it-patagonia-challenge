@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CompanyRepository, CompanyWithTransfers } from '../../domain/repositories/company.repository.interface';
 
 @Injectable()
@@ -16,6 +16,10 @@ export class GetCompaniesWithTransfersLastMonthUseCase {
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 59, 999);
 
-        return this.companyRepository.findWithTransfersInDateRange(start, end);
+        try {
+            return await this.companyRepository.findWithTransfersInDateRange(start, end);
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to fetch companies with transfers last month', { cause: error as Error });
+        }
     }
 }

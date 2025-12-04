@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Company } from '../../domain/entities/company.entity';
 import { CompanyRepository } from '../../domain/repositories/company.repository.interface';
 
@@ -17,6 +17,10 @@ export class GetCompaniesJoinedLastMonthUseCase {
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 59, 999);
 
-        return this.companyRepository.findJoinedInDateRange(start, end);
+        try {
+            return await this.companyRepository.findJoinedInDateRange(start, end);
+        } catch (error) {
+            throw new InternalServerErrorException('Failed to fetch companies joined last month', { cause: error as Error });
+        }
     }
 }

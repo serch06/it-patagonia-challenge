@@ -20,7 +20,10 @@ export class TypeOrmCompanyRepository implements CompanyRepository {
     }
 
     async findById(id: string): Promise<Company | null> {
-        const ormEntity = await this.repository.findOne({ where: { id } });
+        const ormEntity = await this.repository
+            .createQueryBuilder('company')
+            .where('company.id = :id', { id })
+            .getOne();
         return ormEntity ? CompanyMapper.toDomain(ormEntity) : null;
     }
 
