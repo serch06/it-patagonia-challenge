@@ -104,7 +104,7 @@ Se incluyen pruebas para los casos de uso (registro de empresas y transferencias
 
 ## Lambda para adhesión de empresas (diseño)
 - **Objetivo**: Lambda (Node.js 18) que valida y registra la adhesión de una empresa (`Pyme` o `Corporativa`) y devuelve el alta con un UUID.
-- **Código** (en `aws-lambda/register-company-lambda.ts`):
+- **Código** en `aws-lambda/register-company-lambda.ts`:
 
 - **Input esperado (JSON)**:
 ```json
